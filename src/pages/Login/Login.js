@@ -41,7 +41,7 @@ const Login = () => {
       });
   };
   return (
-    <div className="app">
+    <div className="login">
       <form onSubmit={handleSubmit}>
         <p className="heading">Login</p>
         <div className="label_container">

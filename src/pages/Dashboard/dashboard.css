@@ -3,7 +3,7 @@
   padding: 16px 50px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 32px;
   justify-content: flex-end;
   position: fixed;
   top: 0;
@@ -161,5 +161,21 @@ table {
   button {
     font-size: 16px;
     font-weight: 500;
+  }
+}
+
+@media (max-width: 992px) {
+  .header {
+    padding: 16px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 8px 20px;
+  }
+
+  .dashboard {
+    padding: 100px 20px 16px 20px;
   }
 }

@@ -10,6 +10,7 @@ import {
 } from "@tabler/icons-react";
 import TableLoader from "../../components/Table Loader/TableLoader";
 import Image_Prefix from "../../assets";
+import { use } from "react";
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -21,6 +22,15 @@ const Dashboard = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+
+  const [formValues, setFormValues] = useState({
+    id: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+  });
 
   useEffect(() => {
     callApi(page);
@@ -64,12 +74,33 @@ const Dashboard = () => {
         // fireToast("success", response.data.message, "bottom-right", true);
       })
       .catch((err) => {
-        setOpenDeleteModal(false);
+        setDeleteLoading(false);
+        // fireToast("error", err.response.data.message, undefined, true);
+      });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+  };
+
+  const callUpdateApi = (id) => {
+    setLoading(true);
+
+    AuthService.updateUser(id)
+      .then((response) => {
+        setOpenUpdateModal(false);
+        setLoading(false);
+        // fireToast("success", response.data.message, "bottom-right", true);
+      })
+      .catch((err) => {
+        setLoading(false);
         // fireToast("error", err.response.data.message, undefined, true);
       });
   };
 
   console.log("data", data);
+  console.log("formValues", formValues);
   return (
     <>
       <div className="header">
@@ -118,7 +149,20 @@ const Dashboard = () => {
                         </Menu.Target>
 
                         <Menu.Dropdown>
-                          <Menu.Item component="a">Update</Menu.Item>
+                          <Menu.Item
+                            component="a"
+                            onClick={() => {
+                              setFormValues({
+                                id: row.id,
+                                first_name: row.first_name,
+                                last_name: row.last_name,
+                                email: row.email,
+                              });
+                              setOpenUpdateModal(true);
+                            }}
+                          >
+                            Update
+                          </Menu.Item>
                           <Menu.Item
                             component="a"
                             onClick={() => {
@@ -158,35 +202,70 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {deleteId && (
-        <Modal
-          opened={openDeleteModal}
-          onClose={() => {
-            setOpenDeleteModal(false);
-            setDeleteId(null);
-          }}
-          withCloseButton={false}
-          className="modal_container"
-        >
+      <Modal
+        opened={openUpdateModal}
+        onClose={() => {
+          setOpenUpdateModal(false);
+        }}
+        withCloseButton={false}
+      >
+        <div className="modal_container">
           <div className="title_container">
-            <p className="title">Delete User : {deleteId}</p>
+            <p className="title">Update User : {formValues.id}</p>
             <ActionIcon
               onClick={() => {
-                setOpenDeleteModal(false);
-                setDeleteId(null);
+                setOpenUpdateModal(false);
               }}
             >
               <IconX />
             </ActionIcon>
           </div>
-          <p style={{ color: "red" }}>
-            Are your sure you want to delete this user...?
-          </p>
-          <Group position="center">
+          <div className="label_container">
+            <label htmlFor="first_name">
+              First Name <span style={{ color: "red" }}>*</span>
+            </label>
+            <input
+              type="first_name"
+              id="first_name"
+              name="first_name"
+              placeholder="Enter first name"
+              required
+              value={formValues.first_name}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="label_container">
+            <label htmlFor="last_name">
+              Last Name <span style={{ color: "red" }}>*</span>
+            </label>
+            <input
+              type="last_name"
+              id="last_name"
+              name="last_name"
+              placeholder="Enter last name"
+              required
+              value={formValues.last_name}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="label_container">
+            <label htmlFor="email">
+              Email <span style={{ color: "red" }}>*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter email"
+              required
+              value={formValues.email}
+              onChange={handleChange}
+            />
+          </div>
+          <Group justify="center">
             <Button
               onClick={() => {
-                setOpenDeleteModal(false);
-                setDeleteId(null);
+                setOpenUpdateModal(false);
               }}
               variant="outline"
               my={20}
@@ -196,15 +275,65 @@ const Dashboard = () => {
             <Button
               type="submit"
               my={20}
-              loading={deleteLoading}
-              className="delete_button"
+              loading={isLoading}
               onClick={() => {
-                callDeleteApi(deleteId);
+                callUpdateApi(formValues.id);
               }}
             >
-              Delete
+              Update
             </Button>
           </Group>
+        </div>
+      </Modal>
+
+      {deleteId && (
+        <Modal
+          opened={openDeleteModal}
+          onClose={() => {
+            setOpenDeleteModal(false);
+            setDeleteId(null);
+          }}
+          withCloseButton={false}
+        >
+          <div className="modal_container">
+            <div className="title_container">
+              <p className="title">Delete User : {deleteId}</p>
+              <ActionIcon
+                onClick={() => {
+                  setOpenDeleteModal(false);
+                  setDeleteId(null);
+                }}
+              >
+                <IconX />
+              </ActionIcon>
+            </div>
+            <p style={{ color: "red" }}>
+              Are your sure you want to delete this user...?
+            </p>
+            <Group justify="center">
+              <Button
+                onClick={() => {
+                  setOpenDeleteModal(false);
+                  setDeleteId(null);
+                }}
+                variant="outline"
+                my={20}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                my={20}
+                loading={deleteLoading}
+                className="delete_button"
+                onClick={() => {
+                  callDeleteApi(deleteId);
+                }}
+              >
+                Delete
+              </Button>
+            </Group>
+          </div>
         </Modal>
       )}
     </>

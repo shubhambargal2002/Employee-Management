@@ -6,11 +6,13 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconDotsVertical,
+  IconSunsetFilled,
   IconX,
 } from "@tabler/icons-react";
 import TableLoader from "../../components/Table Loader/TableLoader";
 import Image_Prefix from "../../assets";
 import { use } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -24,6 +26,8 @@ const Dashboard = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [filteredData, setFilteredData] = useState(null);
+  const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
     id: "",
@@ -41,6 +45,7 @@ const Dashboard = () => {
       .then((response) => {
         console.log(response);
         setData(response.data.data);
+        setFilteredData(response.data.data);
         setPerPage(response.data.per_page);
         setCount(response.data.total);
         setTotalPages(response.data.total_pages);
@@ -99,6 +104,25 @@ const Dashboard = () => {
       });
   };
 
+  useEffect(() => {
+    if (search === "") {
+      setFilteredData(data);
+    } else {
+      const filtered = data.filter((user) => {
+        const firstName = user.first_name?.toLowerCase() || "";
+        const lastName = user.last_name?.toLowerCase() || "";
+        return firstName.includes(search) || lastName.includes(search);
+      });
+
+      setFilteredData(filtered);
+    }
+  }, [search]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   console.log("data", data);
   console.log("formValues", formValues);
   return (
@@ -106,21 +130,21 @@ const Dashboard = () => {
       <div className="header">
         <input
           type="text"
-          placeholder="Search"
+          placeholder="Search by first and last name"
           className="search_input"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
           }}
         />
-        <Button>Logout</Button>
+        <Button onClick={handleLogout}>Logout</Button>
         <img src={Image_Prefix.default_profile} alt="default_profile" />
       </div>
       <div className="dashboard">
         <table>
           <thead>
             <tr>
-              <th>Sr. No.</th>
+              <th>Id</th>
               <th>Avatar</th>
               <th>Firstname</th>
               <th>Lastname</th>
@@ -128,12 +152,12 @@ const Dashboard = () => {
               <th>Action</th>
             </tr>
           </thead>
-          {data ? (
+          {filteredData ? (
             <tbody>
-              {data &&
-                data.map((row, i) => (
+              {filteredData &&
+                filteredData.map((row, i) => (
                   <tr key={i}>
-                    <td>{(page - 1) * perPage + i + 1}</td>
+                    <td>{row.id}</td>
                     <td>
                       <img src={row.avatar} alt="avatar" />
                     </td>

@@ -20,7 +20,17 @@ const users = (params) => {
   return client.get("/api/users", { params });
 };
 
+const updateUser = (id) => {
+  return client.put(`/api/users/${id}`);
+};
+
+const deleteUser = (id) => {
+  return client.delete(`/api/users/${id}`);
+};
+
 export default {
   login,
   users,
+  updateUser,
+  deleteUser,
 };

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./dashboard.css";
 import AuthService from "../../services/api";
-import { ActionIcon, Button, Menu } from "@mantine/core";
+import { ActionIcon, Button, Group, Menu, Modal } from "@mantine/core";
 import {
   IconChevronLeft,
   IconChevronRight,
   IconDotsVertical,
+  IconX,
 } from "@tabler/icons-react";
 import TableLoader from "../../components/Table Loader/TableLoader";
 import Image_Prefix from "../../assets";
@@ -17,6 +18,9 @@ const Dashboard = () => {
   const [perPage, setPerPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     callApi(page);
@@ -47,6 +51,22 @@ const Dashboard = () => {
     if (page < totalPages) {
       setPage((prevPage) => prevPage + 1);
     }
+  };
+
+  const callDeleteApi = (id) => {
+    setDeleteLoading(true);
+
+    AuthService.deleteUser(id)
+      .then((response) => {
+        setData((prev) => prev.filter((user) => user.id !== id));
+        setOpenDeleteModal(false);
+        setDeleteLoading(false);
+        // fireToast("success", response.data.message, "bottom-right", true);
+      })
+      .catch((err) => {
+        setOpenDeleteModal(false);
+        // fireToast("error", err.response.data.message, undefined, true);
+      });
   };
 
   console.log("data", data);
@@ -99,7 +119,15 @@ const Dashboard = () => {
 
                         <Menu.Dropdown>
                           <Menu.Item component="a">Update</Menu.Item>
-                          <Menu.Item component="a">Delete</Menu.Item>
+                          <Menu.Item
+                            component="a"
+                            onClick={() => {
+                              setDeleteId(row.id);
+                              setOpenDeleteModal(true);
+                            }}
+                          >
+                            Delete
+                          </Menu.Item>
                         </Menu.Dropdown>
                       </Menu>
                     </td>
@@ -112,23 +140,73 @@ const Dashboard = () => {
         </table>
 
         <div className="table_pagination_container">
-        <div
-          className="table_pagination_container_prev_next"
-          onClick={handlePreviousPage}
-        >
-          <IconChevronLeft />
-          <p>Prev</p>
-        </div>
-        <p>{`${page} of ${totalPages}`}</p>
-        <div
-          className="table_pagination_container_prev_next"
-          onClick={handleNextPage}
-        >
-          <p>Next</p>
-          <IconChevronRight />
+          <div
+            className="table_pagination_container_prev_next"
+            onClick={handlePreviousPage}
+          >
+            <IconChevronLeft />
+            <p>Prev</p>
+          </div>
+          <p>{`${page} of ${totalPages}`}</p>
+          <div
+            className="table_pagination_container_prev_next"
+            onClick={handleNextPage}
+          >
+            <p>Next</p>
+            <IconChevronRight />
+          </div>
         </div>
       </div>
-      </div>
+
+      {deleteId && (
+        <Modal
+          opened={openDeleteModal}
+          onClose={() => {
+            setOpenDeleteModal(false);
+            setDeleteId(null);
+          }}
+          withCloseButton={false}
+          className="modal_container"
+        >
+          <div className="title_container">
+            <p className="title">Delete User : {deleteId}</p>
+            <ActionIcon
+              onClick={() => {
+                setOpenDeleteModal(false);
+                setDeleteId(null);
+              }}
+            >
+              <IconX />
+            </ActionIcon>
+          </div>
+          <p style={{ color: "red" }}>
+            Are your sure you want to delete this user...?
+          </p>
+          <Group position="center">
+            <Button
+              onClick={() => {
+                setOpenDeleteModal(false);
+                setDeleteId(null);
+              }}
+              variant="outline"
+              my={20}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              my={20}
+              loading={deleteLoading}
+              className="delete_button"
+              onClick={() => {
+                callDeleteApi(deleteId);
+              }}
+            >
+              Delete
+            </Button>
+          </Group>
+        </Modal>
+      )}
     </>
   );
 };

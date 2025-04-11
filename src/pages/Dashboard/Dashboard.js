@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./dashboard.css";
 import AuthService from "../../services/api";
-import { ActionIcon, Menu } from "@mantine/core";
+import { ActionIcon, Button, Menu } from "@mantine/core";
 import {
   IconChevronLeft,
   IconChevronRight,
   IconDotsVertical,
 } from "@tabler/icons-react";
 import TableLoader from "../../components/Table Loader/TableLoader";
+import Image_Prefix from "../../assets";
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [count, setCount] = useState(0);
   const [perPage, setPerPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     callApi(page);
@@ -49,53 +51,67 @@ const Dashboard = () => {
 
   console.log("data", data);
   return (
-    <div className="dashboard">
-      <table>
-        <thead>
-          <tr>
-            <th>Sr. No.</th>
-            <th>Avatar</th>
-            <th>Firstname</th>
-            <th>Lastname</th>
-            <th>Email</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        {data ? (
-          <tbody>
-            {data &&
-              data.map((row, i) => (
-                <tr key={i}>
-                  <td>{(page - 1) * perPage + i + 1}</td>
-                  <td>
-                    <img src={row.avatar} alt="avatar" />
-                  </td>
-                  <td style={{ fontWeight: "600" }}>{row.first_name}</td>
-                  <td>{row.last_name}</td>
-                  <td style={{ color: "#228BE6" }}>{row.email}</td>
-                  <td>
-                    <Menu width={130} shadow="md">
-                      <Menu.Target>
-                        <ActionIcon>
-                          <IconDotsVertical />
-                        </ActionIcon>
-                      </Menu.Target>
+    <>
+      <div className="header">
+        <input
+          type="text"
+          placeholder="Search"
+          className="search_input"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        />
+        <Button>Logout</Button>
+        <img src={Image_Prefix.default_profile} alt="default_profile" />
+      </div>
+      <div className="dashboard">
+        <table>
+          <thead>
+            <tr>
+              <th>Sr. No.</th>
+              <th>Avatar</th>
+              <th>Firstname</th>
+              <th>Lastname</th>
+              <th>Email</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          {data ? (
+            <tbody>
+              {data &&
+                data.map((row, i) => (
+                  <tr key={i}>
+                    <td>{(page - 1) * perPage + i + 1}</td>
+                    <td>
+                      <img src={row.avatar} alt="avatar" />
+                    </td>
+                    <td style={{ fontWeight: "600" }}>{row.first_name}</td>
+                    <td>{row.last_name}</td>
+                    <td style={{ color: "#228BE6" }}>{row.email}</td>
+                    <td>
+                      <Menu width={130} shadow="md">
+                        <Menu.Target>
+                          <ActionIcon>
+                            <IconDotsVertical />
+                          </ActionIcon>
+                        </Menu.Target>
 
-                      <Menu.Dropdown>
-                        <Menu.Item component="a">Update</Menu.Item>
-                        <Menu.Item component="a">Delete</Menu.Item>
-                      </Menu.Dropdown>
-                    </Menu>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        ) : (
-          <TableLoader noOftd={6} />
-        )}
-      </table>
+                        <Menu.Dropdown>
+                          <Menu.Item component="a">Update</Menu.Item>
+                          <Menu.Item component="a">Delete</Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          ) : (
+            <TableLoader noOftd={6} />
+          )}
+        </table>
 
-      <div className="table_pagination_container">
+        <div className="table_pagination_container">
         <div
           className="table_pagination_container_prev_next"
           onClick={handlePreviousPage}
@@ -112,7 +128,8 @@ const Dashboard = () => {
           <IconChevronRight />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

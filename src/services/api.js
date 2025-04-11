@@ -16,6 +16,11 @@ const login = (data) => {
   return client.post("/api/login", data, { headers });
 };
 
+const users = (params) => {
+  return client.get("/api/users", { params });
+};
+
 export default {
   login,
+  users,
 };

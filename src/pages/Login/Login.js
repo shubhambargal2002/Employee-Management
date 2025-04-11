@@ -3,6 +3,7 @@ import "./login.css";
 import { Button } from "@mantine/core";
 import AuthService from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [isLoading, setLoading] = useState(false);
@@ -33,11 +34,11 @@ const Login = () => {
         localStorage.setItem("token", response.data.token);
         navigate("/dashboard");
         setLoading(false);
-        // fireToast("success", response.data.message, "bottom-right", true);
+        toast.success("Logged In successfully");
       })
       .catch((err) => {
         setLoading(false);
-        // fireToast("error", err.response.data.message, undefined, true);
+        toast.error("Error occured while login!");
       });
   };
   return (

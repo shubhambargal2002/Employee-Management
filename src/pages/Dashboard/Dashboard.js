@@ -13,6 +13,7 @@ import TableLoader from "../../components/Table Loader/TableLoader";
 import Image_Prefix from "../../assets";
 import { use } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -73,14 +74,14 @@ const Dashboard = () => {
 
     AuthService.deleteUser(id)
       .then((response) => {
-        setData((prev) => prev.filter((user) => user.id !== id));
+        setFilteredData((prev) => prev.filter((user) => user.id !== id));
         setOpenDeleteModal(false);
         setDeleteLoading(false);
-        // fireToast("success", response.data.message, "bottom-right", true);
+        toast.success("User deleted");
       })
       .catch((err) => {
         setDeleteLoading(false);
-        // fireToast("error", err.response.data.message, undefined, true);
+        toast.error("Error occured while deleting user!");
       });
   };
 
@@ -96,11 +97,11 @@ const Dashboard = () => {
       .then((response) => {
         setOpenUpdateModal(false);
         setLoading(false);
-        // fireToast("success", response.data.message, "bottom-right", true);
+        toast.success("User updated");
       })
       .catch((err) => {
         setLoading(false);
-        // fireToast("error", err.response.data.message, undefined, true);
+        toast.error("Error occured while updating user!");
       });
   };
 
@@ -121,6 +122,7 @@ const Dashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
+    toast.success("Logout successfully");
   };
 
   console.log("data", data);
@@ -349,10 +351,10 @@ const Dashboard = () => {
                 type="submit"
                 my={20}
                 loading={deleteLoading}
-                className="delete_button"
                 onClick={() => {
                   callDeleteApi(deleteId);
                 }}
+                style={{ background: "rgb(254, 121, 112)" }}
               >
                 Delete
               </Button>
